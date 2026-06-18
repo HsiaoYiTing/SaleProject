@@ -30,18 +30,18 @@ public class MemberRepository : IMemberRepository
 
     }
 
-    public async Task<Member?> LogInAsync(Member member)
+    public async Task<Member?> GetMemberByAccountAsync(string account)
     {
         const string sql = """
             SELECT * FROM member 
-            WHERE account = @account AND password = @password;
+            WHERE account = @account;
         """;
 
         using var connection = CreateConnection();
 
         return await connection.QueryFirstOrDefaultAsync<Member>(
             sql,
-            new { account = member.Account, password = member.Password}
+            new { account = account}
         );
     }
 
