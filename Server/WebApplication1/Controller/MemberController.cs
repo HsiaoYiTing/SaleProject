@@ -14,11 +14,11 @@ public class MemberController: ControllerBase
     }
 
     [HttpPost("add")]
-    public async Task<IActionResult> AddAsync([FromBody] Member member)
+    public async Task<ResponseBase> AddAsync([FromBody] Member member)
     {
-        await _memberService.AddMemberAsync(member);
+        var response = await _memberService.AddMemberAsync(member);
 
-        return Ok(new { message = "Member added successfully" });
+        return response;
     }
 
     [HttpPost("login")]
