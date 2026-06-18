@@ -20,6 +20,9 @@ const toastMsg = ref('')
 
 const clickAction = () => {
 
+  message.value = ''
+  toastMsg.value = ''
+
   if (account.value.length == 0 || password.value.length == 0 || name.value.length == 0) {
     message.value = "所有資料不能為空"
     return

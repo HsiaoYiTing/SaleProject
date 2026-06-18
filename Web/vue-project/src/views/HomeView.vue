@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppHeader from '@/components/AppHeader.vue';
 import BaseEditView from '@/components/BaseEditView.vue';
-import ToastView from '@/components/ToastView.vue'
+import ToastView from '@/components/ToastView.vue';
 import { ref } from 'vue';
 import { login } from '@/api/MemberApi'
 import router from '@/router';
@@ -18,6 +18,9 @@ const toastMsg = ref('')
 
 const clickAction = ()=> {
 
+  message.value = ''
+  toastMsg.value = ''
+  
   if (account.value.length == 0 || password.value.length == 0) {
     message.value = "帳號/密碼不能為空"
     return
