@@ -1,23 +1,31 @@
-import type { Member } from '@/models/Member'
-import type { MemberResponse } from '@/models/MemberResponse'
+import type { SaleSumRequest } from '@/models/SaleSumRequest';
+import type { SaleSumResponse } from '@/models/SaleSumResponse';
 import axios from "axios"
 
 const BASR_URL = 'http://localhost:5165/api/';
-const Member_URL = `${BASR_URL}member/`;
+const SUM_URL = `${BASR_URL}sum/`;
 
-export async function addMember(
-    account: string, 
-    password: string, 
-    name: string): Promise<MemberResponse> {
+export async function findByConditions(
+    storeId: string, 
+    startDate?: string, 
+    endDate?: string): Promise<SaleSumResponse> {
 
-    const request: Member = {
-        account: account,
-        password: password,
-        name: name
+    const request: SaleSumRequest = {
+        storeId: storeId
     }
 
+    if (startDate != null && startDate.length > 0) {
+        request.startDate = startDate;
+    }
+    if (endDate != null && endDate.length > 0) {
+        request.endDate = endDate;
+    }
+
+    console.log('JSON = ' + JSON.stringify(request))
+
     try {
-        const response = await axios.post(`${Member_URL}add`, request)
+        const response = await axios.post(`${SUM_URL}findbyconditions`, request)
+
         return response.data
 
     } catch (error) {
@@ -28,29 +36,7 @@ export async function addMember(
     }
 }
 
-export async function login(
-    account: string, 
-    password: string): Promise<MemberResponse> {
-
-    const request: Member = {
-        account: account,
-        password: password,
-        name: ""
-    }
-
-    try {
-        const response = await axios.post(`${Member_URL}login`, request)
-        return response.data
-
-    } catch (error) {
-
-        console.error(error)
-
-        return parseError(error)
-    }
-}
-
-function parseError(error: unknown): MemberResponse {
+function parseError(error: unknown): SaleSumResponse {
 
     if (axios.isAxiosError(error)) {
 

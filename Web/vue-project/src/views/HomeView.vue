@@ -7,6 +7,8 @@ import { login } from '@/api/MemberApi'
 import router from '@/router';
 import { useMemberStore } from '@/stores/MemberStore'
 
+const SUCCESS_CODE = 200;
+
 const account = ref('');
 const password = ref('');
 const accountError = ref('')
@@ -35,7 +37,7 @@ const loginApi = async () => {
   const response = await login(account.value, password.value)
     
   console.log(response)
-  if (response.code == 200) {
+  if (response.code == SUCCESS_CODE) {
     const memberStore = useMemberStore()
     memberStore.login(
       response.data!
