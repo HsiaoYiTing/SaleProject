@@ -20,9 +20,10 @@ CREATE TABLE store (
     address VARCHAR(100)
 );
 
-CREATE TABLE sale_summary (
-    store_id VARCHAR(50) PRIMARY KEY,
-    sale_time DATE,
+CREATE TABLE sale_sum (
+    id VARCHAR(50) PRIMARY KEY,
+    store_id VARCHAR(50),
+    sale_time DATE ,
     price NUMERIC(10, 2),
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -37,12 +38,15 @@ INSERT INTO store (id, name, address) VALUES('123331', '門市A', '台北');
 INSERT INTO store (id, name, address) VALUES('123332', '門市B', '新北');
 INSERT INTO store (id, name, address) VALUES('123333', '門市C', '桃園');
 
-INSERT INTO sale_summary (store_id, sale_time, price) VALUES('123331', '2026-06-21', 500);
-INSERT INTO sale_summary (store_id, sale_time, price) VALUES('123332', '2026-06-20', 500);
-INSERT INTO sale_summary (store_id, sale_time, price) VALUES('123333', '2026-06-21', 1500);
+INSERT INTO sale_sum (id, store_id, sale_time, price) VALUES('12333120260621','123331', '2026-06-21', 500);
+INSERT INTO sale_sum (id, store_id, sale_time, price) VALUES('12333120260620','123331', '2026-06-20', 2000);
+INSERT INTO sale_sum (id, store_id, sale_time, price) VALUES('12333220260620','123332', '2026-06-20', 500);
+INSERT INTO sale_sum (id, store_id, sale_time, price) VALUES('12333320260621','123333', '2026-06-21', 1500);
 
 SELECT * FROM sale;
 SELECT * FROM product;
 SELECT * FROM store;
-SELECT * FROM sale_summary;
+SELECT * FROM sale_sum;
 SELECT * FROM member;
+
+SELECT * FROM sale_summary  WHERE store_id = '123331';
