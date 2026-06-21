@@ -5,6 +5,7 @@ import ToastView from '@/components/ToastView.vue';
 import { ref } from 'vue';
 import { login } from '@/api/MemberApi'
 import router from '@/router';
+import { useMemberStore } from '@/stores/MemberStore'
 
 const account = ref('');
 const password = ref('');
@@ -20,7 +21,7 @@ const clickAction = ()=> {
 
   message.value = ''
   toastMsg.value = ''
-  
+
   if (account.value.length == 0 || password.value.length == 0) {
     message.value = "帳號/密碼不能為空"
     return
@@ -35,10 +36,16 @@ const loginApi = async () => {
     
   console.log(response)
   if (response.code == 200) {
+    const memberStore = useMemberStore()
+    memberStore.login(
+      response.data!
+    )
+
     toastMsg.value = response.message
     showToast.value = true
     setTimeout(() => {
       showToast.value = false
+
       router.replace("/main")
     }, 2000)
   } else {

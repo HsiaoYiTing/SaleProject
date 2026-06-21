@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import AppHeader from '@/components/AppHeader.vue';
-import { ref } from 'vue';
+import router from '@/router';
+import { useMemberStore } from '@/stores/MemberStore';
+
+const memberStore = useMemberStore()
+
+const logout = () => {
+
+  memberStore.logout()
+}
 
 </script>
 
@@ -8,9 +16,14 @@ import { ref } from 'vue';
 
   <AppHeader />
     
-  <main class="login_div">
-    <div class="login_container">
-      <RouterLink to="/" class="link_text">返回</RouterLink> 
+  <main class="main_div">
+
+    <div class="member_bg">
+      <p class="member_text">{{ memberStore.member?.name }} 你好，</p>
+      <RouterLink to="/" class="logout_text" @click="logout">登出</RouterLink> 
+    </div>
+
+    <div >
     </div>
   </main>
 </template>
@@ -23,36 +36,31 @@ import { ref } from 'vue';
   gap: 12px;
 }
 
-.login_div {
+.main_div {
+  width: 100%;
   min-height: calc(80vh);
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
-.login_container {
-  width: 50%;
-  padding: 20px;
-  border-radius: 10px;
-  background-color: #e1fae1;
+.member_bg {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  background-color: aliceblue;
 }
 
-
-.login_button {
-
-  width: calc(100% - 10px);
-  padding: 15px;
-  font-size: 1rem;
-  background-color: rgb(11, 94, 67);
-  color: white;
-  border-width: 0px;
-  margin-top: 20px;
+.member_text {
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 20px;
 }
 
-.link_text{
-  margin-top: 20px;
-  align-items: center;
+.logout_text {
+  
   text-decoration: underline;
+  text-align: right;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-right: 20px;
 }
-
 </style>
