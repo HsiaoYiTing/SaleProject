@@ -33,6 +33,13 @@ CREATE TABLE member (
     name VARCHAR(50) NOT NULL
 );
 
+INSERT INTO store (id, name, address) VALUES('123331', '門市A', '台北');
+INSERT INTO store (id, name, address) VALUES('123332', '門市B', '新北');
+INSERT INTO store (id, name, address) VALUES('123333', '門市C', '桃園');
+
+INSERT INTO sale_summary (store_id, sale_time, price) VALUES('123331', '2026-06-21', 500);
+INSERT INTO sale_summary (store_id, sale_time, price) VALUES('123332', '2026-06-20', 500);
+INSERT INTO sale_summary (store_id, sale_time, price) VALUES('123333', '2026-06-21', 1500);
 
 SELECT * FROM sale;
 SELECT * FROM product;
