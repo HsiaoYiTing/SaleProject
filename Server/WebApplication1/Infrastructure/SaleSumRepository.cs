@@ -35,7 +35,7 @@ public class SaleSumRepository : ISaleSumRepository
             sql += hasCondition ? " AND " : " WHERE " ;
 
             sql += """
-                sale_date >= @startDate
+                sale_time >= @startDate
             """;
 
             hasCondition = true;
@@ -46,7 +46,7 @@ public class SaleSumRepository : ISaleSumRepository
             sql += hasCondition ? " AND " : " WHERE " ;
 
             sql += """
-                sale_date <= @endDate
+                sale_time <= @endDate
             """;
 
             hasCondition = true;
