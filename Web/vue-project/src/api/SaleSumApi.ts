@@ -5,10 +5,7 @@ import axios from "axios"
 const BASR_URL = 'http://localhost:5165/api/';
 const SUM_URL = `${BASR_URL}sum/`;
 
-export async function findByConditions(
-    storeId: string, 
-    startDate?: string, 
-    endDate?: string): Promise<SaleSumResponse> {
+export async function findByConditions(storeId: string, startDate?: string, endDate?: string): Promise<SaleSumResponse> {
 
     const request: SaleSumRequest = {
         storeId: storeId
@@ -34,6 +31,33 @@ export async function findByConditions(
 
         return parseError(error)
     }
+}
+
+export async function exportExcel(storeId: string, startDate?: string, endDate?: string) {
+
+    const request: SaleSumRequest = {
+        storeId: storeId
+    }
+
+    if (startDate != null && startDate.length > 0) {
+        request.startDate = startDate;
+    }
+    if (endDate != null && endDate.length > 0) {
+        request.endDate = endDate;
+    }
+
+    const response = await axios.post(`${SUM_URL}export`, request,
+    {
+        responseType: 'blob'    
+    })
+
+    const today = new Date().toISOString().split('T')[0]
+
+    const url = window.URL.createObjectURL(response.data)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Sales_${today}.xlsx`
+    link.click()
 }
 
 function parseError(error: unknown): SaleSumResponse {
