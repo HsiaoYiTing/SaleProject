@@ -1,57 +1,30 @@
 <script setup lang="ts">
-import AppHeader from '@/components/AppHeader.vue';
-import BaseEditView from '@/components/BaseEditView.vue';
-import { useMemberStore } from '@/stores/MemberStore';
-import { ref } from 'vue';
-import { findByConditions, exportExcel } from '@/api/SaleSumApi'
-import { SaleSum } from '@/models/SaleSum';
+  import AppHeader from '@/components/AppHeader.vue';
+  import { useMemberStore } from '@/stores/MemberStore';
+  import { ref } from 'vue';
+  import SaleSearchView from './SaleSearchView.vue';  
+  import SaleSummaryView from './SaleSummaryView.vue';
+  import SaleImportView from './SaleImportView.vue';
 
-const SUCCESS_CODE = 200;
+  const memberStore = useMemberStore()
+  const currentTab = ref<'search' | 'import' | 'summary'>('search')
 
-const memberStore = useMemberStore()
+  const logout = () => {
 
-const storeId = ref('');
-const startDate = ref('');
-const endDate = ref('');
-const resultList = ref<SaleSum[]>([])
-
-const message = ref('');
-
-const logout = () => {
-
-  memberStore.logout()
-}
-
-const exportExcelAction = async () => {
-  var id = storeId.value ?? ''
-  var start = startDate.value ?? ''
-  var end = endDate.value ?? ''
-
-  await exportExcel(id, start, end)
-}
-
-const searchAction = () => {
-
-  message.value = ''
-  searchApi()
-}
-
-const searchApi = async () => {
-
-  var id = storeId.value ?? ''
-  var start = startDate.value ?? ''
-  var end = endDate.value ?? ''
-
-  const response = await findByConditions(id, start, end)
-    
-  console.log(response)
-  if (response.code == SUCCESS_CODE) {
-    resultList.value = response.data ?? []
-  } else {
-    message.value = response.message
+    memberStore.logout()
   }
-}
 
+  const searchAction = () => {
+    currentTab.value = 'search';
+  }
+
+  const importAction = () => {
+    currentTab.value = 'import';
+  }
+
+  const summaryAction = () => {
+    currentTab.value = 'summary';
+  }
 </script>
 
 <template>
@@ -65,60 +38,16 @@ const searchApi = async () => {
       <RouterLink to="/" class="logout_text" @click="logout">登出</RouterLink> 
     </div>
 
-    <div class="search_div">
-      <BaseEditView
-        v-model="storeId" 
-        title="店號" 
-        hint="請輸入店號" 
-        type="text" 
-        error-text=""/>
-
-      <BaseEditView
-        v-model="startDate" 
-        title="起始日期" 
-        hint="請輸入起始日期" 
-        type="date" 
-        error-text=""/>
-
-      <BaseEditView
-        v-model="endDate" 
-        title="結束日期" 
-        hint="請輸入結束日期" 
-        type="date" 
-        error-text=""/>
-
+    <div class="function_div">
+      <button @click="summaryAction">彙整資料</button>
+      <button @click="searchAction">查詢銷售彙整資料</button>
+      <button @click="importAction">新增銷售資料</button>
     </div>
 
-    <div class="button_div">
-      <button class="submit_button" @click="searchAction">搜尋</button>
-      <button v-show="resultList.length > 0" class="export_button" @click="exportExcelAction">匯出Excel</button>
-    </div>
+    <SaleSearchView v-if="currentTab === 'search'" />
+    <SaleImportView v-if="currentTab === 'import'" />
+    <SaleSummaryView v-if="currentTab === 'summary'" />
 
-    <p class="message_text" v-show="message.length > 0">{{ message }}</p>
-
-    <table class="resule_table">
-      <thead>
-      <tr class="title_tr">
-          
-        <th>店號</th>
-        <th>銷售日期</th>
-        <th>銷售金額</th>
-        <th>建立日期</th>
-      </tr>
-      </thead>
-
-      <tbody>
-      <tr v-for="(sum, index) in resultList" :key="String(sum.id ?? index)">
-          <td>{{ sum.store_Id }}</td>
-          <td>{{ sum.sale_Time }}</td>
-          <td>{{ sum.price }}</td>
-          <td>{{ sum.create_Time }}</td>
-      </tr>
-      </tbody>
-    </table>
-
-    <div >
-    </div>
   </main>
 </template>
 
@@ -140,6 +69,17 @@ const searchApi = async () => {
   display: grid;
   grid-template-columns: 1fr auto;
   background-color: aliceblue;
+}
+
+.function_div {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 5px;
+}
+.function_div 
+  button {
+    padding: 5px;
+    font-size: medium;
 }
 
 .button_div {

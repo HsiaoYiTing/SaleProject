@@ -1,3 +1,4 @@
+import type { SaleSummaryRequest } from '@/models/SaleSummaryRequest';
 import type { SaleSumRequest } from '@/models/SaleSumRequest';
 import type { SaleSumResponse } from '@/models/SaleSumResponse';
 import axios from "axios"
@@ -22,6 +23,26 @@ export async function findByConditions(storeId: string, startDate?: string, endD
 
     try {
         const response = await axios.post(`${SUM_URL}findbyconditions`, request)
+
+        return response.data
+
+    } catch (error) {
+
+        console.error(error)
+
+        return parseError(error)
+    }
+}
+
+export async function summary(storeId: string, date: string): Promise<SaleSumResponse> {
+
+    const request: SaleSummaryRequest = {
+        storeId: storeId,
+        date: date
+    }
+
+    try {
+        const response = await axios.post(`${SUM_URL}summary`, request)
 
         return response.data
 
