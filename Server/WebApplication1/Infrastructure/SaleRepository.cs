@@ -98,7 +98,17 @@ public class SaleRepository : BaseRepository, ISaleRepository
     public async Task<List<Sale>?> GetSalesByConditionsAsync(DateTime startTime, DateTime endTime, string storeId)
     {
         string sql = """
-            SELECT * FROM sale
+            SELECT 
+            sale.id, sale.store_id, sale.product_id, sale.price, sale.qty, 
+            sale.sale_time AS SaleTime, 
+            sale.create_time AS CreateTime, 
+            sale.update_by AS UpdateBy ,
+
+            s.id, s.name, s.address, 
+
+            p.id, p.name, p.price
+
+            FROM sale
             LEFT JOIN product p ON sale.product_id = p.id
             LEFT JOIN store s ON sale.store_id = s.id
             WHERE sale_time >= @startTime AND sale_time <= @endTime AND store_Id = @storeId;
