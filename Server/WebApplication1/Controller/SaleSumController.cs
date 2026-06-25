@@ -16,16 +16,29 @@ public class SaleSumController: ControllerBase
 
 
     [HttpPost("findbyconditions")]
-    public async Task<ResponseBase<List<SaleSum>?>> FindByConditions([FromBody] SaleSumRequest request)
+    public async Task<ResponseBase<List<SaleSum>?>> FindByConditionsAsync([FromBody] SaleSumRequest request)
     {
         var response = await _service.GetSaleSumListAsync(request);
 
         return response;
     }
 
+    [HttpPost("summary")]
+    public async Task<ResponseBase> SummaryAsync([FromBody] SaleSumRequest request)
+    {
+        bool successed = await _service.Summary(request);
+
+        if (successed) {
+            return  ResponseFactory.CreateSuccessResponse("OK");
+        } 
+        else
+        {
+            return  ResponseFactory.CreateErrorResponse("Failed");
+        }
+    }
 
     [HttpPost("export")]
-    public async Task<IActionResult> Export([FromBody] SaleSumRequest request)
+    public async Task<IActionResult> ExportAsync([FromBody] SaleSumRequest request)
     {
         var bytes = await _service.ExportExcel(request);
 
@@ -35,6 +48,5 @@ public class SaleSumController: ControllerBase
         }
 
         return File(bytes,  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Sale_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
-
     }
 }

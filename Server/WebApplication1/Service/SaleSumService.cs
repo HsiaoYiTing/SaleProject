@@ -31,6 +31,11 @@ public class SaleSumService
         }
     }
 
+    public async Task<bool> Summary(SaleSumRequest request)
+    {
+        return true;
+    }
+
     public async Task<byte[]?> ExportExcel(SaleSumRequest request)
     {
         var storeId = request.StoreId;

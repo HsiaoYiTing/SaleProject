@@ -13,7 +13,30 @@ public class SaleSumRepository : ISaleSumRepository
 
     public async Task<SaleSum?> AddSaleAsync(SaleSum sum)
     {
-        throw new NotImplementedException();
+        string sql = """
+            INSERT INTO sale_sum (id, store_id, sale_time, price) 
+            VALUES(@id, @store_id, @sale_time, @price) 
+            RETURNING id;
+        """;
+
+        using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@id", sum.Id);
+        command.Parameters.AddWithValue("@store_id", sum.Store_Id);
+        command.Parameters.AddWithValue("@sale_time", sum.Sale_Time);
+        command.Parameters.AddWithValue("@price", sum.Price);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        if (rowsAffected >= 1 )
+        {
+            return sum;
+        } 
+        else
+        {
+            return null;
+        }
     }
 
     public async Task<List<SaleSum>?> GetSalesByConditionsAsync(DateOnly? startDate, DateOnly? endDate, string storeId)
@@ -54,14 +77,14 @@ public class SaleSumRepository : ISaleSumRepository
 
         using var connection = CreateConnection();
         
-        var users = await connection.QueryAsync<SaleSum>(sql, new
+        var result = await connection.QueryAsync<SaleSum>(sql, new
         {
             storeId,
             startDate = startDate?.ToDateTime(TimeOnly.MinValue),
             endDate = endDate?.ToDateTime(TimeOnly.MinValue)
         });
 
-        return users.ToList();
+        return result.ToList();
     }
 
     private NpgsqlConnection CreateConnection()

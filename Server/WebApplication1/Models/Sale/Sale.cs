@@ -1,12 +1,12 @@
-public class SaleRecord
+public class Sale
 {
     public string Id { get; set; }
 
-    public string StoreId { get; set; }
+    public Store Store { get; set; }
 
-    public string ProductId { get; set; }
+    public Product Product { get; set; }
 
-    public int Amount { get; set; }
+    public decimal Price { get; set; }
 
     public DateTime SaleTime { get; set; }
 

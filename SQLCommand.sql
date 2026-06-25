@@ -2,7 +2,7 @@ CREATE TABLE sale (
     id VARCHAR(50) PRIMARY KEY,
     store_id VARCHAR(50) NOT NULL,
     product_id VARCHAR(50) NOT NULL,
-    amount INTEGER,
+    price NUMERIC(10, 2),
     sale_time TIMESTAMP,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_by VARCHAR(50) NOT NULL
@@ -34,6 +34,16 @@ CREATE TABLE member (
     name VARCHAR(50) NOT NULL
 );
 
+INSERT INTO sale (id, store_id, product_id, price, sale_time, update_by) VALUES('1','123331', '111', 50, '2026-06-25 13:14:58.007729', 'OL');
+INSERT INTO sale (id, store_id, product_id, price, sale_time, update_by) VALUES('2','123331', '222', 350, '2026-06-25 14:14:58.007729', 'OL');
+INSERT INTO sale (id, store_id, product_id, price, sale_time, update_by) VALUES('3','123331', '333', 59, '2026-06-25 15:14:58.007729', 'OL');
+INSERT INTO sale (id, store_id, product_id, price, sale_time, update_by) VALUES('4','123331', '4444', 120, '2026-06-24 15:14:58.007729', 'OL');
+
+INSERT INTO product (id, name, price) VALUES('111', '麥香奶茶', 10);
+INSERT INTO product (id, name, price) VALUES('222', '乖乖椰子大', 35);
+INSERT INTO product (id, name, price) VALUES('333', '來一客海鮮泡麵', 59);
+INSERT INTO product (id, name, price) VALUES('444', 'MM巧克力', 40);
+
 INSERT INTO store (id, name, address) VALUES('123331', '門市A', '台北');
 INSERT INTO store (id, name, address) VALUES('123332', '門市B', '新北');
 INSERT INTO store (id, name, address) VALUES('123333', '門市C', '桃園');
@@ -49,4 +59,9 @@ SELECT * FROM store;
 SELECT * FROM sale_sum;
 SELECT * FROM member;
 
-SELECT * FROM sale_summary  WHERE store_id = '123331';
+SELECT * FROM sale_sum LEFT JOIN store s on sale_sum.store_id = s.id  WHERE store_id = '123331' ;
+
+SELECT * FROM sale
+    LEFT JOIN product p ON sale.product_id = p.id
+    LEFT JOIN store s ON sale.store_id = s.id
+    WHERE  sale_time >= '2026-06-25 00:00:00' AND sale_time <= '2026-06-25 23:59:59' AND store_Id = '123331';

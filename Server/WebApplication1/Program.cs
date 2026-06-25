@@ -13,8 +13,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<ISaleSumRepository, SaleSumRepository>();
+builder.Services.AddScoped<ISaleRepository, SaleRepository>();
 builder.Services.AddScoped<MemberService>();
 builder.Services.AddScoped<SaleSumService>();
+builder.Services.AddScoped<SaleService>();
 
 
 builder.Services.AddCors(options =>
