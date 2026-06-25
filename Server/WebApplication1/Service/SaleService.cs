@@ -20,7 +20,7 @@ public class SaleService
         var startTime = request.Date.ToDateTime(TimeOnly.MinValue);
         var endTime = request.Date.AddDays(1).ToDateTime(TimeOnly.MinValue);
 
-        var list = await _repository.GetSalesByDateAsync(startTime, endTime, request.StoreId);
+        var list = await _repository.GetSalesByConditionsAsync(startTime, endTime, request.StoreId);
 
         if (list == null || list.Count == 0)
         {

@@ -78,3 +78,11 @@ SELECT * FROM sale
     LEFT JOIN product p ON sale.product_id = p.id
     LEFT JOIN store s ON sale.store_id = s.id
     WHERE  sale_time >= '2026-06-25 00:00:00' AND sale_time <= '2026-06-25 23:59:59' AND store_Id = '123331';
+
+
+INSERT INTO sale_sum (id, store_id, sale_time, price )
+VALUES ('12333120260621', '123331', '2026-06-21', 400)
+ON CONFLICT (id)
+DO UPDATE
+SET price = 12000, create_time = CURRENT_TIMESTAMP
+RETURNING id;

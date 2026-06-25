@@ -24,17 +24,9 @@ public class SaleSumController: ControllerBase
     }
 
     [HttpPost("summary")]
-    public async Task<ResponseBase> SummaryAsync([FromBody] SaleSumRequest request)
+    public async Task<ResponseBase> SummaryAsync([FromBody] SaleSummaryRequest request)
     {
-        bool successed = await _service.Summary(request);
-
-        if (successed) {
-            return  ResponseFactory.CreateSuccessResponse("OK");
-        } 
-        else
-        {
-            return  ResponseFactory.CreateErrorResponse("Failed");
-        }
+        return await _service.Summary(request);
     }
 
     [HttpPost("export")]

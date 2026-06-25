@@ -4,5 +4,5 @@ public interface ISaleRepository
 
     Task<int> AddSaleAsync(List<SaleLine> saleList);
     
-    Task<List<Sale>?> GetSalesByDateAsync(DateTime startTime, DateTime endTime, string storeId);
+    Task<List<Sale>?> GetSalesByConditionsAsync(DateTime startTime, DateTime endTime, string storeId);
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using OfficeOpenXml;
@@ -5,11 +6,13 @@ using OfficeOpenXml;
 public class SaleSumService
 {
     private readonly ISaleSumRepository _repository;
+    private readonly ISaleRepository _saleRepository;
 
 
-    public SaleSumService(ISaleSumRepository repository)
+    public SaleSumService(ISaleSumRepository repository, ISaleRepository saleRepository)
     {
         _repository = repository;
+        _saleRepository = saleRepository;
     }
 
 
@@ -31,9 +34,45 @@ public class SaleSumService
         }
     }
 
-    public async Task<bool> Summary(SaleSumRequest request)
+    public async Task<ResponseBase> Summary(SaleSummaryRequest request)
     {
-        return true;
+        var date = request.Date;
+        var startTime = date.ToDateTime(TimeOnly.MinValue);
+        var endTime = date.AddDays(1).ToDateTime(TimeOnly.MinValue);
+        var parsedDate = date.ToString("yyyyMMdd");
+
+        var list = await _saleRepository.GetSalesByConditionsAsync(startTime, endTime, request.StoreId);
+
+        if (list == null || list.Count == 0)
+        {
+            return ResponseFactory.CreateErrorResponse("選取日期/店家無資料");
+        }
+
+        decimal total = 0;
+        foreach(Sale sale in list)
+        {
+            var price = sale.Price;
+            total += price;
+        }
+
+        var saleSum = new SaleSum
+        {
+            Id = $"{request.StoreId}{parsedDate}",
+            Store_Id = request.StoreId,
+            Sale_Time = request.Date,
+            Price = total
+        };
+
+        var result = await _repository.UpdateSaleAsync(saleSum);
+        
+        if (result != null)
+        {   
+            return ResponseFactory.CreateSuccessResponse("彙整成功");
+        } 
+        else
+        {
+            return ResponseFactory.CreateErrorResponse("彙整失敗");
+        }
     }
 
     public async Task<byte[]?> ExportExcel(SaleSumRequest request)

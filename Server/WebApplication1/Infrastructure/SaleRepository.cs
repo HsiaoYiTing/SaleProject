@@ -95,7 +95,7 @@ public class SaleRepository : BaseRepository, ISaleRepository
         return saleList.Count;
     }
 
-    public async Task<List<Sale>?> GetSalesByDateAsync(DateTime startTime, DateTime endTime, string storeId)
+    public async Task<List<Sale>?> GetSalesByConditionsAsync(DateTime startTime, DateTime endTime, string storeId)
     {
         string sql = """
             SELECT * FROM sale
