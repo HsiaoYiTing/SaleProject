@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 public class SaleService
 {
@@ -43,30 +44,9 @@ public class SaleService
             return ResponseFactory.CreateErrorResponse("查無此店");
         }
 
-        Sale sale = new()
-        {   
-            Id = request.Guid,
-            Store = store,
-            SaleTime = DateTime.ParseExact(request.SaleTime, "yyyyMMddHHmmssff", CultureInfo.InvariantCulture),
-            Price = request.SalePrice,
-            Qty = request.Qty,
-            Product = product,
-            UpdateBy = "OL"
-        };
+        Sale sale = SaleFactory.ParseByRequest(request, store, product);
 
         var count = await _repository.AddSaleAsync(sale);
-        if (count == 0)
-        {
-            return ResponseFactory.CreateErrorResponse("新增失敗");
-        }
-
-        return ResponseFactory.CreateErrorResponse("新增成功");
-    }
-
-    public async Task<ResponseBase> AddSaleAsync(Sale sale)
-    {
-        var count = await _repository.AddSaleAsync(sale);
-
         if (count == 0)
         {
             return ResponseFactory.CreateErrorResponse("新增失敗");
@@ -85,5 +65,55 @@ public class SaleService
         }
         
         return ResponseFactory.CreateErrorResponse("新增成功");
+    }
+
+    public async Task<ResponseBase> AddSaleAsync(Sale sale)
+    {
+        var count = await _repository.AddSaleAsync(sale);
+
+        if (count == 0)
+        {
+            return ResponseFactory.CreateErrorResponse("新增失敗");
+        }
+
+        return ResponseFactory.CreateErrorResponse("新增成功");
+    }
+
+    // public async Task<ResponseBase> AddSaleAsync(List<Sale> saleList)
+    // {
+    //     var count = await _repository.AddSaleAsync(saleList);
+
+    //     if (count == 0)
+    //     {
+    //         return ResponseFactory.CreateErrorResponse("新增失敗");
+    //     }
+        
+    //     return ResponseFactory.CreateErrorResponse("新增成功");
+    // }
+
+    public async Task<ResponseBase> ImportAsync(IFormFile file)
+    {
+        if (file == null || file.Length == 0) return ResponseFactory.CreateErrorResponse("請選擇檔案");
+
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+        using var stream = file.OpenReadStream();
+
+        using var reader = new StreamReader(stream, Encoding.GetEncoding("Big5"));
+
+        List<SaleLine> sales = [];
+
+        string? line;
+
+        while ((line = await reader.ReadLineAsync()) is not null)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            sales.Add(SaleFactory.ParseByLine(line));
+        }
+
+        await _repository.AddSaleAsync(sales);
+
+        return ResponseFactory.CreateSuccessResponse("import成功");
     }
 }

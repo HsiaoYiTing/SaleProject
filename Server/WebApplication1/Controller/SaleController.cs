@@ -31,6 +31,11 @@ public class SaleController: ControllerBase
         return response;
     }
 
+   [HttpPost("import")]
+    public async Task<ResponseBase> Import(IFormFile file)
+    {
+        return await _service.ImportAsync(file);
+    }
 
     [HttpPost("addList")]
     public async Task<ResponseBase> AddAsync([FromBody] List<Sale> saleList)

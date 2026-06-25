@@ -30,29 +30,67 @@ public class SaleRepository : BaseRepository, ISaleRepository
         return rowsAffected;
     }
 
-    public async Task<int> AddSaleAsync(List<Sale> saleList)
+    public async Task<int> AddSaleAsync(List<SaleLine> saleList)
     {
         using var connection = CreateConnection();
 
         await connection.OpenAsync();
 
-        using var writer = connection.BeginBinaryImport("""
-            COPY sale (id, store_id, product_id, price, sale_time, qty, update_by) 
-            FROM STDIN (FORMAT BINARY) 
-        """);
+        await using var transaction = await connection.BeginTransactionAsync();
 
-        foreach (var sale in saleList)
+        // Copy 到 sale_temp
+        using (var writer = connection.BeginBinaryImport("""
+            COPY sale_temp
+            (
+                id,
+                store_id,
+                product_name,
+                price,
+                sale_time,
+                qty,
+                update_by
+            )
+            FROM STDIN (FORMAT BINARY)
+            """))
         {
-            writer.StartRow();
-            writer.Write(sale.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
-            writer.Write(sale.Store.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
-            writer.Write(sale.Product.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
-            writer.Write(sale.Price, NpgsqlTypes.NpgsqlDbType.Numeric);
-            writer.Write(sale.SaleTime, NpgsqlTypes.NpgsqlDbType.Timestamp);
-            writer.Write(sale.Qty, NpgsqlTypes.NpgsqlDbType.Integer);
-            writer.Write(sale.UpdateBy, NpgsqlTypes.NpgsqlDbType.Varchar);
+            foreach (var sale in saleList)
+            {
+                writer.StartRow();
+
+                writer.Write(sale.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
+                writer.Write(sale.Store, NpgsqlTypes.NpgsqlDbType.Varchar);
+                writer.Write(sale.ProductName, NpgsqlTypes.NpgsqlDbType.Varchar);
+                writer.Write(sale.Price, NpgsqlTypes.NpgsqlDbType.Numeric);
+                writer.Write(sale.SaleTime, NpgsqlTypes.NpgsqlDbType.Timestamp);
+                writer.Write(sale.Qty, NpgsqlTypes.NpgsqlDbType.Integer);
+                writer.Write(sale.UpdateBy, NpgsqlTypes.NpgsqlDbType.Varchar);
+            }
+
+            await writer.CompleteAsync();
+        } 
+
+        // 寫入 sale
+        const string insertSql = """
+
+            INSERT INTO sale(id, store_id, product_id, price, sale_time, qty, update_by)
+            SELECT t.id, t.store_id, p.id, t.price, t.sale_time, t.qty, t.update_by
+            FROM sale_temp t
+            INNER JOIN product p
+                ON p.name = t.product_name;
+            """;
+
+        using (var command = new NpgsqlCommand(insertSql, connection, transaction))
+        {
+            await command.ExecuteNonQueryAsync();
         }
-        await writer.CompleteAsync();
+
+        // 清空 sale_temp
+        using (var command = new NpgsqlCommand("TRUNCATE TABLE sale_temp;", connection, transaction))
+        {
+            await command.ExecuteNonQueryAsync();
+        }
+        await transaction.CommitAsync();
+
 
         return saleList.Count;
     }
@@ -83,5 +121,32 @@ public class SaleRepository : BaseRepository, ISaleRepository
         });
 
         return records.ToList();
+    }
+
+    public async Task<int> AddSaleAsync(List<Sale> saleList)
+    {
+        using var connection = CreateConnection();
+
+        await connection.OpenAsync();
+
+        using var writer = connection.BeginBinaryImport("""
+            COPY sale (id, store_id, product_id, price, sale_time, qty, update_by) 
+            FROM STDIN (FORMAT BINARY) 
+        """);
+                
+        foreach (var sale in saleList)        
+        {
+            writer.StartRow();
+            writer.Write(sale.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
+            writer.Write(sale.Store.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
+            writer.Write(sale.Product.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
+            writer.Write(sale.Price, NpgsqlTypes.NpgsqlDbType.Numeric);
+            writer.Write(sale.SaleTime, NpgsqlTypes.NpgsqlDbType.Timestamp);
+            writer.Write(sale.Qty, NpgsqlTypes.NpgsqlDbType.Integer);
+            writer.Write(sale.UpdateBy, NpgsqlTypes.NpgsqlDbType.Varchar);
+        }
+                
+        await writer.CompleteAsync();
+        return saleList.Count;
     }
 }
