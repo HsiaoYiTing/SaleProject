@@ -16,7 +16,7 @@ public class SaleController: ControllerBase
 
 
     [HttpPost("findbyDate")]
-    public async Task<ResponseBase<List<Sale>?>> FindByConditionsAsync([FromBody] SaleRequest request)
+    public async Task<ResponseBase<List<Sale>?>> FindByConditionsAsync([FromBody] QuerySaleRequest request)
     {
         var response = await _service.GetSaleListAsync(request);
 
@@ -24,9 +24,9 @@ public class SaleController: ControllerBase
     }
 
     [HttpPost("add")]
-    public async Task<ResponseBase> AddAsync([FromBody] Sale sale)
+    public async Task<ResponseBase> AddAsync([FromBody] AddSaleRequest request)
     {
-        var response = await _service.AddSaleAsync(sale);
+        var response = await _service.AddSaleAsync(request);
 
         return response;
     }

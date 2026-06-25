@@ -3,6 +3,7 @@ CREATE TABLE sale (
     store_id VARCHAR(50) NOT NULL,
     product_id VARCHAR(50) NOT NULL,
     price NUMERIC(10, 2),
+    qty INTEGER,
     sale_time TIMESTAMP,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_by VARCHAR(50) NOT NULL
@@ -34,10 +35,10 @@ CREATE TABLE member (
     name VARCHAR(50) NOT NULL
 );
 
-INSERT INTO sale (id, store_id, product_id, price, sale_time, update_by) VALUES('1','123331', '111', 50, '2026-06-25 13:14:58.007729', 'OL');
-INSERT INTO sale (id, store_id, product_id, price, sale_time, update_by) VALUES('2','123331', '222', 350, '2026-06-25 14:14:58.007729', 'OL');
-INSERT INTO sale (id, store_id, product_id, price, sale_time, update_by) VALUES('3','123331', '333', 59, '2026-06-25 15:14:58.007729', 'OL');
-INSERT INTO sale (id, store_id, product_id, price, sale_time, update_by) VALUES('4','123331', '4444', 120, '2026-06-24 15:14:58.007729', 'OL');
+INSERT INTO sale (id, store_id, product_id, qty, price, sale_time, update_by) VALUES('1','123331', '111', 5,50, '2026-06-25 13:14:58.007729', 'OL');
+INSERT INTO sale (id, store_id, product_id, qty, price, sale_time, update_by) VALUES('2','123331', '222', 10, 350, '2026-06-25 14:14:58.007729', 'OL');
+INSERT INTO sale (id, store_id, product_id, qty, price, sale_time, update_by) VALUES('3','123331', '333', 1, 59, '2026-06-25 15:14:58.007729', 'OL');
+INSERT INTO sale (id, store_id, product_id, qty, price, sale_time, update_by) VALUES('4','123331', '4444', 3, 120, '2026-06-24 15:14:58.007729', 'OL');
 
 INSERT INTO product (id, name, price) VALUES('111', '麥香奶茶', 10);
 INSERT INTO product (id, name, price) VALUES('222', '乖乖椰子大', 35);

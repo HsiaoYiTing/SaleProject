@@ -8,6 +8,8 @@ public class Sale
 
     public decimal Price { get; set; }
 
+    public int Qty { get; set; }
+
     public DateTime SaleTime { get; set; }
 
     public DateTime CreateTime { get; set; } 

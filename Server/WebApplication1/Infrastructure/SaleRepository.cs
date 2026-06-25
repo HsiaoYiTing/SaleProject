@@ -1,21 +1,17 @@
 using Dapper;
 using Npgsql;
 
-public class SaleRepository : ISaleRepository
+public class SaleRepository : BaseRepository, ISaleRepository
 {
-
-    private readonly IConfiguration _configuration;
-
-    public SaleRepository(IConfiguration configuration)
+    public SaleRepository(IConfiguration configuration) : base(configuration)
     {
-        _configuration = configuration;
     }
 
     public async Task<int> AddSaleAsync(Sale record)
     {
         string sql = """
-            INSERT INTO sale (id, store_id, product_id, price, sale_time, update_by) 
-            VALUES(@id, @store_id, @product_id, @price, @sale_time, @update_by);
+            INSERT INTO sale (id, store_id, product_id, price, sale_time, qty, update_by) 
+            VALUES(@id, @store_id, @product_id, @price, @sale_time, @qty, @update_by);
         """;
 
         using var connection = CreateConnection();
@@ -27,6 +23,7 @@ public class SaleRepository : ISaleRepository
         command.Parameters.AddWithValue("@product_id", record.Product.Id);
         command.Parameters.AddWithValue("@price", record.Price);
         command.Parameters.AddWithValue("@sale_time", record.SaleTime);
+        command.Parameters.AddWithValue("@qty", record.Qty);
         command.Parameters.AddWithValue("@update_by", record.UpdateBy);
 
         var rowsAffected = await command.ExecuteNonQueryAsync();
@@ -40,7 +37,7 @@ public class SaleRepository : ISaleRepository
         await connection.OpenAsync();
 
         using var writer = connection.BeginBinaryImport("""
-            COPY sale (id, store_id, product_id, price, sale_time, update_by) 
+            COPY sale (id, store_id, product_id, price, sale_time, qty, update_by) 
             FROM STDIN (FORMAT BINARY) 
         """);
 
@@ -52,6 +49,7 @@ public class SaleRepository : ISaleRepository
             writer.Write(sale.Product.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
             writer.Write(sale.Price, NpgsqlTypes.NpgsqlDbType.Numeric);
             writer.Write(sale.SaleTime, NpgsqlTypes.NpgsqlDbType.Timestamp);
+            writer.Write(sale.Qty, NpgsqlTypes.NpgsqlDbType.Integer);
             writer.Write(sale.UpdateBy, NpgsqlTypes.NpgsqlDbType.Varchar);
         }
         await writer.CompleteAsync();
@@ -85,11 +83,5 @@ public class SaleRepository : ISaleRepository
         });
 
         return records.ToList();
-    }
-
-    private NpgsqlConnection CreateConnection()
-    {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        return new NpgsqlConnection(connectionString);
     }
 }

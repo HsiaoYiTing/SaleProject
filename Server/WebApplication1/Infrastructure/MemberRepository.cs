@@ -1,15 +1,12 @@
 using Dapper;
 using Npgsql;
 
-public class MemberRepository : IMemberRepository
+public class MemberRepository : BaseRepository, IMemberRepository
 {
-    private readonly IConfiguration _configuration;
-
-    public MemberRepository(IConfiguration configuration)
+    public MemberRepository(IConfiguration configuration) : base(configuration)
     {
-        _configuration = configuration;
-
     }
+
     public async Task<int> AddAsync(Member member)
     {
         const string sql = """
@@ -41,13 +38,7 @@ public class MemberRepository : IMemberRepository
 
         return await connection.QueryFirstOrDefaultAsync<Member>(
             sql,
-            new { account = account}
+            new { account}
         );
-    }
-
-    private NpgsqlConnection CreateConnection()
-    {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        return new NpgsqlConnection(connectionString);
     }
 }

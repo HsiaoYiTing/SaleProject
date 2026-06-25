@@ -2,13 +2,10 @@
 using Dapper;
 using Npgsql;
 
-public class SaleSumRepository : ISaleSumRepository
+public class SaleSumRepository : BaseRepository, ISaleSumRepository
 {
-    private readonly IConfiguration _configuration;
-
-    public SaleSumRepository(IConfiguration configuration)
+    public SaleSumRepository(IConfiguration configuration) : base(configuration)
     {
-        _configuration = configuration;
     }
 
     public async Task<SaleSum?> AddSaleAsync(SaleSum sum)
@@ -85,11 +82,5 @@ public class SaleSumRepository : ISaleSumRepository
         });
 
         return result.ToList();
-    }
-
-    private NpgsqlConnection CreateConnection()
-    {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        return new NpgsqlConnection(connectionString);
     }
 }
