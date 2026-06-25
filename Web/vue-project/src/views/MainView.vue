@@ -2,20 +2,26 @@
   import AppHeader from '@/components/AppHeader.vue';
   import { useMemberStore } from '@/stores/MemberStore';
   import { ref } from 'vue';
+
   import SaleSearchView from './SaleSearchView.vue';  
+  import SaleSumSearchView from './SaleSumSearchView.vue';  
   import SaleSummaryView from './SaleSummaryView.vue';
   import SaleImportView from './SaleImportView.vue';
 
   const memberStore = useMemberStore()
-  const currentTab = ref<'search' | 'import' | 'summary'>('search')
+  const currentTab = ref<'searchSale' | 'searchSum' | 'import' | 'summary'>('searchSum')
 
   const logout = () => {
 
     memberStore.logout()
   }
 
-  const searchAction = () => {
-    currentTab.value = 'search';
+  const searchSaleAction = () => {
+    currentTab.value = 'searchSale';
+  }
+
+  const searchSumAction = () => {
+    currentTab.value = 'searchSum';
   }
 
   const importAction = () => {
@@ -39,12 +45,14 @@
     </div>
 
     <div class="function_div">
-      <button @click="summaryAction">彙整資料</button>
-      <button @click="searchAction">查詢銷售彙整資料</button>
-      <button @click="importAction">新增銷售資料</button>
+      <button @click="searchSaleAction">查詢銷售資料</button>
+      <button @click="searchSumAction">查詢銷售彙整資料</button>
+      <button @click="summaryAction">彙整銷售</button>
+      <button @click="importAction">匯入銷售資料</button>
     </div>
 
-    <SaleSearchView v-if="currentTab === 'search'" />
+    <SaleSearchView v-if="currentTab === 'searchSale'" />
+    <SaleSumSearchView v-if="currentTab === 'searchSum'" />
     <SaleImportView v-if="currentTab === 'import'" />
     <SaleSummaryView v-if="currentTab === 'summary'" />
 

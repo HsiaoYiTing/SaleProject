@@ -1,38 +1,39 @@
 <script setup lang="ts">
     import BaseEditView from '@/components/BaseEditView.vue';
     import { ref } from 'vue';
-    import { findByDate } from '@/api/SaleApi'
-    import { Sale } from '@/models/Sale';
+    import { findByConditions, exportExcel } from '@/api/SaleSumApi'
+    import { SaleSum } from '@/models/SaleSum';
 
     const SUCCESS_CODE = 200;
 
     const storeId = ref('');
-    const date = ref('');
-    const storeIdError = ref('');
-    const dateError = ref('');
-    const resultList = ref<Sale[]>([])
+    const startDate = ref('');
+    const endDate = ref('');
+    const resultList = ref<SaleSum[]>([])
 
     const message = ref('');
+
+    const exportExcelAction = async () => {
+        var id = storeId.value ?? ''
+        var start = startDate.value ?? ''
+        var end = endDate.value ?? ''
+
+        await exportExcel(id, start, end)
+    }
 
     const searchAction = () => {
 
         message.value = ''
-        storeIdValidate();
-        dateValidate();
-
-        if (storeId.value.length == 0 || date.value.length == 0 ) {
-            return
-        }
-
         searchApi()
     }
 
     const searchApi = async () => {
 
         var id = storeId.value ?? ''
-        var searchDate = date.value ?? ''
+        var start = startDate.value ?? ''
+        var end = endDate.value ?? ''
 
-        const response = await findByDate(id, searchDate)
+        const response = await findByConditions(id, start, end)
             
         console.log(response)
         if (response.code == SUCCESS_CODE) {
@@ -42,35 +43,36 @@
         }
     }
 
-    const storeIdValidate = () => {
-        storeIdError.value = storeId.value.length == 0 ? "店家編號不能為空" : ""
-    }
-
-    const dateValidate = () => {
-        dateError.value = date.value.length == 0 ? "日期不能為空" : ""
-    }
-
 </script>
 
 <template>
     <div class="search_div">
         <BaseEditView
             v-model="storeId" 
-            @onBlur="storeIdValidate"
             title="店號" 
             hint="請輸入店號" 
             type="text" 
-            :error-text="storeIdError"/>
+            error-text=""/>
 
         <BaseEditView
-            v-model="date" 
-            @onBlur="dateValidate"
-            title="日期" 
-            hint="請輸入日期" 
+            v-model="startDate" 
+            title="起始日期" 
+            hint="請輸入起始日期" 
             type="date" 
-            :error-text="dateError"/>
+            error-text=""/>
 
+        <BaseEditView
+            v-model="endDate" 
+            title="結束日期" 
+            hint="請輸入結束日期" 
+            type="date" 
+            error-text=""/>
+
+    </div>
+
+    <div class="button_div">
         <button class="submit_button" @click="searchAction">搜尋</button>
+        <button v-show="resultList.length > 0" class="export_button" @click="exportExcelAction">匯出Excel</button>
     </div>
 
     <p class="message_text" v-show="message.length > 0">{{ message }}</p>
@@ -79,27 +81,19 @@
         <thead>
             <tr class="title_tr">
                 
-                <th>店名</th>
+                <th>店號</th>
                 <th>銷售日期</th>
-                <th>產品</th>
-                <th>單價</th>
-                <th>銷售數量</th>
                 <th>銷售金額</th>
                 <th>建立日期</th>
-                <th>更新來源</th>
             </tr>
         </thead>
 
         <tbody>
-            <tr v-for="(sale, index) in resultList" :key="String(sale.id ?? index)">
-                <td>{{ sale.store.name }}</td>
-                <td>{{ sale.saleTime }}</td>
-                <td>{{ sale.product.name }}</td>
-                <td>{{ sale.product.price }}</td>
-                <td>{{ sale.qty }}</td>
-                <td>{{ sale.price }}</td>
-                <td>{{ sale.createTime }}</td>
-                <td>{{ sale.updateBy }}</td>
+            <tr v-for="(sum, index) in resultList" :key="String(sum.id ?? index)">
+                <td>{{ sum.store_Id }}</td>
+                <td>{{ sum.sale_Time }}</td>
+                <td>{{ sum.price }}</td>
+                <td>{{ sum.create_Time }}</td>
             </tr>
         </tbody>
     </table>
@@ -108,6 +102,12 @@
 
 
 <style>
+
+.button_div {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+}
 
 .search_div {
   width: 100%;
