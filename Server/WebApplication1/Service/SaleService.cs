@@ -30,6 +30,7 @@ public class SaleService
         return ResponseFactory.CreateErrorResponse<List<Sale>?>(list, "查詢成功");
     }
 
+    // 單筆JSON
     public async Task<ResponseBase> AddSaleAsync(AddSaleRequest request)
     {
         var product = await _productRepository.GetProductByNameAsync(request.ItemName);
@@ -55,42 +56,7 @@ public class SaleService
         return ResponseFactory.CreateErrorResponse("新增成功");
     }
 
-    public async Task<ResponseBase> AddSaleAsync(List<Sale> saleList)
-    {
-        var count = await _repository.AddSaleAsync(saleList);
-
-        if (count == 0)
-        {
-            return ResponseFactory.CreateErrorResponse("新增失敗");
-        }
-        
-        return ResponseFactory.CreateErrorResponse("新增成功");
-    }
-
-    public async Task<ResponseBase> AddSaleAsync(Sale sale)
-    {
-        var count = await _repository.AddSaleAsync(sale);
-
-        if (count == 0)
-        {
-            return ResponseFactory.CreateErrorResponse("新增失敗");
-        }
-
-        return ResponseFactory.CreateErrorResponse("新增成功");
-    }
-
-    // public async Task<ResponseBase> AddSaleAsync(List<Sale> saleList)
-    // {
-    //     var count = await _repository.AddSaleAsync(saleList);
-
-    //     if (count == 0)
-    //     {
-    //         return ResponseFactory.CreateErrorResponse("新增失敗");
-    //     }
-        
-    //     return ResponseFactory.CreateErrorResponse("新增成功");
-    // }
-
+    // BIG5 File
     public async Task<ResponseBase> ImportAsync(IFormFile file)
     {
         if (file == null || file.Length == 0) return ResponseFactory.CreateErrorResponse("請選擇檔案");

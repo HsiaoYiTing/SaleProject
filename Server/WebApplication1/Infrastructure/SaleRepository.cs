@@ -122,31 +122,4 @@ public class SaleRepository : BaseRepository, ISaleRepository
 
         return records.ToList();
     }
-
-    public async Task<int> AddSaleAsync(List<Sale> saleList)
-    {
-        using var connection = CreateConnection();
-
-        await connection.OpenAsync();
-
-        using var writer = connection.BeginBinaryImport("""
-            COPY sale (id, store_id, product_id, price, sale_time, qty, update_by) 
-            FROM STDIN (FORMAT BINARY) 
-        """);
-                
-        foreach (var sale in saleList)        
-        {
-            writer.StartRow();
-            writer.Write(sale.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
-            writer.Write(sale.Store.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
-            writer.Write(sale.Product.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
-            writer.Write(sale.Price, NpgsqlTypes.NpgsqlDbType.Numeric);
-            writer.Write(sale.SaleTime, NpgsqlTypes.NpgsqlDbType.Timestamp);
-            writer.Write(sale.Qty, NpgsqlTypes.NpgsqlDbType.Integer);
-            writer.Write(sale.UpdateBy, NpgsqlTypes.NpgsqlDbType.Varchar);
-        }
-                
-        await writer.CompleteAsync();
-        return saleList.Count;
-    }
 }

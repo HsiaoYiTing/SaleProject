@@ -36,12 +36,4 @@ public class SaleController: ControllerBase
     {
         return await _service.ImportAsync(file);
     }
-
-    [HttpPost("addList")]
-    public async Task<ResponseBase> AddAsync([FromBody] List<Sale> saleList)
-    {
-        var response = await _service.AddSaleAsync(saleList);
-
-        return response;
-    }
 }
