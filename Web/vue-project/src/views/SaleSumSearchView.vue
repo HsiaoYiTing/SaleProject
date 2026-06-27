@@ -7,18 +7,16 @@
     const SUCCESS_CODE = 200;
 
     const storeId = ref('');
-    const startDate = ref('');
-    const endDate = ref('');
+    const date = ref('');
     const resultList = ref<SaleSum[]>([])
 
     const message = ref('');
 
     const exportExcelAction = async () => {
         var id = storeId.value ?? ''
-        var start = startDate.value ?? ''
-        var end = endDate.value ?? ''
+        var dateStr = date.value ?? ''
 
-        await exportExcel(id, start, end)
+        await exportExcel(id, dateStr)
     }
 
     const searchAction = () => {
@@ -30,10 +28,9 @@
     const searchApi = async () => {
 
         var id = storeId.value ?? ''
-        var start = startDate.value ?? ''
-        var end = endDate.value ?? ''
+        var dateStr = date.value ?? ''
 
-        const response = await findByConditions(id, start, end)
+        const response = await findByConditions(id, dateStr)
             
         console.log(response)
         if (response.code == SUCCESS_CODE) {
@@ -55,25 +52,15 @@
             error-text=""/>
 
         <BaseEditView
-            v-model="startDate" 
-            title="起始日期" 
-            hint="請輸入起始日期" 
+            v-model="date" 
+            title="日期" 
+            hint="請輸入日期" 
             type="date" 
             error-text=""/>
-
-        <BaseEditView
-            v-model="endDate" 
-            title="結束日期" 
-            hint="請輸入結束日期" 
-            type="date" 
-            error-text=""/>
-
-    </div>
-
-    <div class="button_div">
         <button class="submit_button" @click="searchAction">搜尋</button>
-        <button v-show="resultList.length > 0" class="export_button" @click="exportExcelAction">匯出Excel</button>
     </div>
+    
+    <button v-show="resultList.length > 0" class="export_button" @click="exportExcelAction">匯出Excel</button>
 
     <p class="message_text" v-show="message.length > 0">{{ message }}</p>
 
@@ -102,12 +89,6 @@
 
 
 <style>
-
-.button_div {
-  width: 100%;
-  display: flex;
-  gap: 10px;
-}
 
 .search_div {
   width: 100%;

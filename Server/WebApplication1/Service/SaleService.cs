@@ -28,7 +28,7 @@ public class SaleService
             return ResponseFactory.CreateErrorResponse<List<Sale>?>(null, "無符合資料");
         }
 
-        return ResponseFactory.CreateErrorResponse<List<Sale>?>(list, "查詢成功");
+        return ResponseFactory.CreateSuccessResponse<List<Sale>?>(list, "查詢成功");
     }
 
     // 單筆JSON
@@ -71,7 +71,7 @@ public class SaleService
             return ResponseFactory.CreateErrorResponse("新增失敗");
         }
 
-        return ResponseFactory.CreateErrorResponse("新增成功");
+        return ResponseFactory.CreateSuccessResponse("新增成功");
     }
 
     // BIG5 File

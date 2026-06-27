@@ -1,8 +1,10 @@
 <script setup lang="ts">
     import BaseEditView from '@/components/BaseEditView.vue';
     import { ref } from 'vue';
-    import { summary } from '@/api/SaleSumApi'
+    import { summary, findByConditions } from '@/api/SaleSumApi'
     import { SaleSum } from '@/models/SaleSum';
+
+    const SUCCESS_CODE = 200;
 
     const storeId = ref('');
     const date = ref('');
@@ -28,11 +30,31 @@
     const summaryApi = async () => {
 
         var id = storeId.value ?? ''
-        var summaryDate = date.value ?? ''
+        var dateStr = date.value ?? ''
 
-        const response = await summary(id, summaryDate)
+        const response = await summary(id, dateStr)
         message.value = response.message
+
+        if (response.code == SUCCESS_CODE) {
+            searchApi()
+        }
     }
+
+    const searchApi = async () => {
+
+        var id = storeId.value ?? ''
+        var dateStr = date.value ?? ''
+
+        const response = await findByConditions(id, dateStr)
+            
+        console.log(response)
+        if (response.code == SUCCESS_CODE) {
+            resultList.value = response.data ?? []
+        } else {
+            message.value = response.message
+        }
+    }
+
     const storeIdValidate = () => {
         storeIdError.value = storeId.value.length == 0 ? "店家編號不能為空" : ""
     }

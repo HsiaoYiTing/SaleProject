@@ -1,25 +1,16 @@
-import type { SaleSummaryRequest } from '@/models/SaleSummaryRequest';
-import type { SaleSumRequest } from '@/models/SaleSumRequest';
+import type { BaseRequest } from '@/models/BaseRequest';
 import type { SaleSumResponse } from '@/models/SaleSumResponse';
 import axios from "axios"
 
 const BASR_URL = 'http://localhost:5165/api/';
 const SUM_URL = `${BASR_URL}sum/`;
 
-export async function findByConditions(storeId: string, startDate?: string, endDate?: string): Promise<SaleSumResponse> {
+export async function findByConditions(storeId: string, date: string): Promise<SaleSumResponse> {
 
-    const request: SaleSumRequest = {
-        storeId: storeId
+    const request: BaseRequest = {
+        storeId: storeId,
+        date: date
     }
-
-    if (startDate != null && startDate.length > 0) {
-        request.startDate = startDate;
-    }
-    if (endDate != null && endDate.length > 0) {
-        request.endDate = endDate;
-    }
-
-    console.log('JSON = ' + JSON.stringify(request))
 
     try {
         const response = await axios.post(`${SUM_URL}findbyconditions`, request)
@@ -36,7 +27,7 @@ export async function findByConditions(storeId: string, startDate?: string, endD
 
 export async function summary(storeId: string, date: string): Promise<SaleSumResponse> {
 
-    const request: SaleSummaryRequest = {
+    const request: BaseRequest = {
         storeId: storeId,
         date: date
     }
@@ -54,17 +45,11 @@ export async function summary(storeId: string, date: string): Promise<SaleSumRes
     }
 }
 
-export async function exportExcel(storeId: string, startDate?: string, endDate?: string) {
+export async function exportExcel(storeId: string, date: string) {
 
-    const request: SaleSumRequest = {
-        storeId: storeId
-    }
-
-    if (startDate != null && startDate.length > 0) {
-        request.startDate = startDate;
-    }
-    if (endDate != null && endDate.length > 0) {
-        request.endDate = endDate;
+    const request: BaseRequest = {
+        storeId: storeId,
+        date: date
     }
 
     const response = await axios.post(`${SUM_URL}export`, request,

@@ -1,4 +1,4 @@
-export interface SaleSummaryRequest {
+export interface BaseRequest {
 
     storeId: String,
     date: String

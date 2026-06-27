@@ -1,4 +1,4 @@
-import type { SaleRequest } from "@/models/SaleRequest";
+import type { BaseRequest } from "@/models/BaseRequest";
 import type { SaleResponse } from "@/models/SaleResponse";
 import axios from "axios"
 
@@ -25,7 +25,7 @@ export const importFile = async (file: File) => {
 
 export async function findByDate(storeId: string, date: string): Promise<SaleResponse> {
 
-    const request: SaleRequest = {
+    const request: BaseRequest = {
         storeId: storeId,
         date: date
     }
