@@ -51,10 +51,10 @@ INSERT INTO sale (id, store_id, product_id, qty, price, sale_time, update_by) VA
 INSERT INTO sale (id, store_id, product_id, qty, price, sale_time, update_by) VALUES('3','123331', '333', 1, 59, '2026-06-25 15:14:58.007729', 'OL');
 INSERT INTO sale (id, store_id, product_id, qty, price, sale_time, update_by) VALUES('4','123331', '4444', 3, 120, '2026-06-24 15:14:58.007729', 'OL');
 
-INSERT INTO product (id, name, price) VALUES('111', '麥香奶茶', 10);
-INSERT INTO product (id, name, price) VALUES('222', '乖乖椰子大', 35);
-INSERT INTO product (id, name, price) VALUES('333', '來一客海鮮泡麵', 59);
-INSERT INTO product (id, name, price) VALUES('444', 'MM巧克力', 40);
+INSERT INTO product (id, name, price) VALUES('000010', '麥香奶茶', 10);
+INSERT INTO product (id, name, price) VALUES('000100', '乖乖椰子大', 35);
+INSERT INTO product (id, name, price) VALUES('001000', '來一客海鮮泡麵', 59);
+INSERT INTO product (id, name, price) VALUES('010000', 'MM巧克力', 40);
 
 INSERT INTO store (id, name, address) VALUES('123331', '門市A', '台北');
 INSERT INTO store (id, name, address) VALUES('123332', '門市B', '新北');
@@ -86,3 +86,9 @@ ON CONFLICT (id)
 DO UPDATE
 SET price = 12000, create_time = CURRENT_TIMESTAMP
 RETURNING id;
+
+
+SELECT * FROM sale
+LEFT JOIN product p ON sale.product_id = p.id
+LEFT JOIN store s ON sale.store_id = s.id
+WHERE sale_time >= '2026-05-01 00:00:00' AND sale_time <= '2026-05-02 00:00:00' AND store_Id = '123331'

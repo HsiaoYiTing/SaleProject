@@ -6,9 +6,22 @@ public class StoreRepository : BaseRepository, IStoreRepository
     {
     }
 
+    public async Task<List<Store>> GetAllAsync()
+    { 
+        const string sql = """
+            SELECT * FROM store;
+        """;
+
+        using var connection = CreateConnection();
+
+        var result = await connection.QueryAsync<Store>(sql);
+
+        return result.ToList();
+    }
+
     public async Task<Store?> GetStoreByIdAsync(string id)
     {
-          const string sql = """
+        const string sql = """
             SELECT * FROM store 
             WHERE id = @id;
         """;

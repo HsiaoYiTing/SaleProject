@@ -1,6 +1,6 @@
 public class Member
 {
-    public string Account { get; set; } = "";
-    public string Password { get; set; } = "";
-    public string Name { get; set; } = "";
+    public required string Account { get; set; }
+    public required string Password { get; set; }
+    public string? Name { get; set; }
 }

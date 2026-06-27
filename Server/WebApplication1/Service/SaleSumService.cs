@@ -16,13 +16,14 @@ public class SaleSumService
     }
 
 
-    public async Task<ResponseBase<List<SaleSum>?>> GetSaleSumListAsync(SaleSumRequest request)
+    public async Task<ResponseBase<List<SaleSum>?>> GetSaleSumListAsync(RequestBase request)
     {
         var storeId = request.StoreId;
-        var startDate = request.StartDate;
-        var endDate = request.EndDate;
+        var date = request.Date;
+        var startTime = date.ToDateTime(TimeOnly.MinValue);
+        var endTime = date.AddDays(1).ToDateTime(TimeOnly.MinValue);
 
-        var sumList = await _repository.GetSalesByConditionsAsync(startDate, endDate, storeId);
+        var sumList = await _repository.GetSalesByConditionsAsync(startTime, endTime, storeId);
 
         if (sumList != null)
         {
@@ -34,7 +35,7 @@ public class SaleSumService
         }
     }
 
-    public async Task<ResponseBase> Summary(SaleSummaryRequest request)
+    public async Task<ResponseBase> Summary(RequestBase request)
     {
         var date = request.Date;
         var startTime = date.ToDateTime(TimeOnly.MinValue);
@@ -60,7 +61,8 @@ public class SaleSumService
             Id = $"{request.StoreId}{parsedDate}",
             Store_Id = request.StoreId,
             Sale_Time = request.Date,
-            Price = total
+            Price = total,
+            Create_Time = DateTime.Now
         };
 
         var result = await _repository.UpdateSaleAsync(saleSum);
@@ -75,13 +77,14 @@ public class SaleSumService
         }
     }
 
-    public async Task<byte[]?> ExportExcel(SaleSumRequest request)
+    public async Task<byte[]?> ExportExcel(RequestBase request)
     {
         var storeId = request.StoreId;
-        var startDate = request.StartDate;
-        var endDate = request.EndDate;
+        var date = request.Date;
+        var startTime = date.ToDateTime(TimeOnly.MinValue);
+        var endTime = date.AddDays(1).ToDateTime(TimeOnly.MinValue);
 
-        var sumList = await _repository.GetSalesByConditionsAsync(startDate, endDate, storeId);
+        var sumList = await _repository.GetSalesByConditionsAsync(startTime, endTime, storeId);
 
         if (sumList == null || sumList.Count == 0)
         {

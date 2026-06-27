@@ -30,24 +30,23 @@ public class SaleRepository : BaseRepository, ISaleRepository
         return rowsAffected;
     }
 
-    public async Task<int> AddSaleAsync(List<SaleLine> saleList)
+    public async Task<int> AddSaleAsync(List<Sale> saleList)
     {
         using var connection = CreateConnection();
 
         await connection.OpenAsync();
 
-        await using var transaction = await connection.BeginTransactionAsync();
-
-        // Copy 到 sale_temp
+        // Copy 到 sale
         using (var writer = connection.BeginBinaryImport("""
-            COPY sale_temp
+            COPY sale
             (
                 id,
                 store_id,
-                product_name,
+                product_id,
                 price,
-                sale_time,
                 qty,
+                sale_time,
+                create_time,
                 update_by
             )
             FROM STDIN (FORMAT BINARY)
@@ -58,41 +57,35 @@ public class SaleRepository : BaseRepository, ISaleRepository
                 writer.StartRow();
 
                 writer.Write(sale.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
-                writer.Write(sale.Store, NpgsqlTypes.NpgsqlDbType.Varchar);
-                writer.Write(sale.ProductName, NpgsqlTypes.NpgsqlDbType.Varchar);
+                writer.Write(sale.Store.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
+                writer.Write(sale.Product.Id, NpgsqlTypes.NpgsqlDbType.Varchar);
                 writer.Write(sale.Price, NpgsqlTypes.NpgsqlDbType.Numeric);
-                writer.Write(sale.SaleTime, NpgsqlTypes.NpgsqlDbType.Timestamp);
                 writer.Write(sale.Qty, NpgsqlTypes.NpgsqlDbType.Integer);
+                writer.Write(sale.SaleTime, NpgsqlTypes.NpgsqlDbType.Timestamp);
+                writer.Write(sale.CreateTime, NpgsqlTypes.NpgsqlDbType.Timestamp);
                 writer.Write(sale.UpdateBy, NpgsqlTypes.NpgsqlDbType.Varchar);
             }
 
             await writer.CompleteAsync();
         } 
-
-        // 寫入 sale
-        const string insertSql = """
-
-            INSERT INTO sale(id, store_id, product_id, price, sale_time, qty, update_by)
-            SELECT t.id, t.store_id, p.id, t.price, t.sale_time, t.qty, t.update_by
-            FROM sale_temp t
-            INNER JOIN product p
-                ON p.name = t.product_name;
-            """;
-
-        using (var command = new NpgsqlCommand(insertSql, connection, transaction))
-        {
-            await command.ExecuteNonQueryAsync();
-        }
-
-        // 清空 sale_temp
-        using (var command = new NpgsqlCommand("TRUNCATE TABLE sale_temp;", connection, transaction))
-        {
-            await command.ExecuteNonQueryAsync();
-        }
-        await transaction.CommitAsync();
-
-
+      
         return saleList.Count;
+    }
+
+    public async Task<int> DeleteSaleAsync(DateTime startTime, DateTime endTime, string updateBy)
+    {
+        const string sql = """
+            DELETE FROM sale WHERE create_time >= @startTime AND create_time < @endTime AND update_by = @updateBy;
+        """;
+
+        using var connection = CreateConnection();
+
+        return await connection.ExecuteAsync(sql, new
+        {
+            startTime,
+            endTime,
+            updateBy
+        });
     }
 
     public async Task<List<Sale>?> GetSalesByConditionsAsync(DateTime startTime, DateTime endTime, string storeId)
@@ -111,7 +104,7 @@ public class SaleRepository : BaseRepository, ISaleRepository
             FROM sale
             LEFT JOIN product p ON sale.product_id = p.id
             LEFT JOIN store s ON sale.store_id = s.id
-            WHERE sale_time >= @startTime AND sale_time <= @endTime AND store_Id = @storeId;
+            WHERE sale_time >= @startTime AND sale_time < @endTime AND store_Id = @storeId;
         """;
         
         using var connection = CreateConnection();

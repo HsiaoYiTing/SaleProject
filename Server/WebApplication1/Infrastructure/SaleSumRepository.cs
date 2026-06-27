@@ -10,6 +10,7 @@ public class SaleSumRepository : BaseRepository, ISaleSumRepository
 
     public async Task<SaleSum?> AddSaleAsync(SaleSum sum)
     {
+
         string sql = """
             INSERT INTO sale_sum (id, store_id, sale_time, price) 
             VALUES(@id, @store_id, @sale_time, @price) 
@@ -36,49 +37,20 @@ public class SaleSumRepository : BaseRepository, ISaleSumRepository
         }
     }
 
-    public async Task<List<SaleSum>?> GetSalesByConditionsAsync(DateOnly? startDate, DateOnly? endDate, string storeId)
+    public async Task<List<SaleSum>?> GetSalesByConditionsAsync(DateTime startTime, DateTime endTime, string storeId)
     {
         
         string sql = """
-            SELECT * FROM sale_sum  
+            SELECT * FROM sale_sum WHERE store_id = @storeId 
+            AND sale_time >= @startTime AND sale_time < @endTime
         """;
 
-        var hasCondition = false;
-        if (!string.IsNullOrWhiteSpace(storeId))
-        {
-            sql += """ WHERE store_id = @storeId """;
-            hasCondition = true;
-        }
-
-        if (startDate != null)
-        {
-            sql += hasCondition ? " AND " : " WHERE " ;
-
-            sql += """
-                sale_time >= @startDate
-            """;
-
-            hasCondition = true;
-        }
-
-        if (endDate != null)
-        {
-            sql += hasCondition ? " AND " : " WHERE " ;
-
-            sql += """
-                sale_time <= @endDate
-            """;
-
-            hasCondition = true;
-        }
-
         using var connection = CreateConnection();
-        
         var result = await connection.QueryAsync<SaleSum>(sql, new
         {
             storeId,
-            startDate = startDate?.ToDateTime(TimeOnly.MinValue),
-            endDate = endDate?.ToDateTime(TimeOnly.MinValue)
+            startTime,
+            endTime
         });
 
         return result.ToList();

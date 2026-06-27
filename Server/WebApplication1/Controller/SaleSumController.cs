@@ -16,7 +16,7 @@ public class SaleSumController: ControllerBase
 
 
     [HttpPost("findbyconditions")]
-    public async Task<ResponseBase<List<SaleSum>?>> FindByConditionsAsync([FromBody] SaleSumRequest request)
+    public async Task<ResponseBase<List<SaleSum>?>> FindByConditionsAsync([FromBody] RequestBase request)
     {
         var response = await _service.GetSaleSumListAsync(request);
 
@@ -24,13 +24,13 @@ public class SaleSumController: ControllerBase
     }
 
     [HttpPost("summary")]
-    public async Task<ResponseBase> SummaryAsync([FromBody] SaleSummaryRequest request)
+    public async Task<ResponseBase> SummaryAsync([FromBody] RequestBase request)
     {
         return await _service.Summary(request);
     }
 
     [HttpPost("export")]
-    public async Task<IActionResult> ExportAsync([FromBody] SaleSumRequest request)
+    public async Task<IActionResult> ExportAsync([FromBody] RequestBase request)
     {
         var bytes = await _service.ExportExcel(request);
 

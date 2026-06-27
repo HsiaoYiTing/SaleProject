@@ -15,10 +15,11 @@ public class SaleService
         _storerRepository = storerRepository;
     }
 
-    public async Task<ResponseBase<List<Sale>?>> GetSaleListAsync(QuerySaleRequest request)
+    public async Task<ResponseBase<List<Sale>?>> GetSaleListAsync(RequestBase request)
     {
-        var startTime = request.Date.ToDateTime(TimeOnly.MinValue);
-        var endTime = request.Date.AddDays(1).ToDateTime(TimeOnly.MinValue);
+        var date = request.Date;
+        var startTime = date.ToDateTime(TimeOnly.MinValue);
+        var endTime = date.AddDays(1).ToDateTime(TimeOnly.MinValue);
 
         var list = await _repository.GetSalesByConditionsAsync(startTime, endTime, request.StoreId);
 
@@ -31,23 +32,40 @@ public class SaleService
     }
 
     // 單筆JSON
-    public async Task<ResponseBase> AddSaleAsync(AddSaleRequest request)
+    public async Task<ResponseBase> AddSaleAsync(List<AddSaleRequest> request)
     {
-        var product = await _productRepository.GetProductByNameAsync(request.ItemName);
-        var store = await _storerRepository.GetStoreByIdAsync(request.Store);
+        var productList = await _productRepository.GetAllAsync();
+        var storeList = await _storerRepository.GetAllAsync();
 
-        if (product == null)
+        List<Sale> sales = [];
+
+        foreach(AddSaleRequest r in request)
         {
-            return ResponseFactory.CreateErrorResponse("查無此產品");
-        }
-        if (store == null)
-        {
-            return ResponseFactory.CreateErrorResponse("查無此店");
-        }
+            var product = productList.FirstOrDefault(p => p.Id == r.ItemId);
+            if (product == null)
+            {
+                Console.Write("[Import Failed_查無此產品] " + r.ToString());
+                continue;
+            }
 
-        Sale sale = SaleFactory.ParseByRequest(request, store, product);
+            var store = storeList.FirstOrDefault(p => p.Id == r.Store);
+            if (store == null)
+            {
+                Console.Write("[Import Failed_查無此店] " + r.ToString());
+                continue;
+            }
 
-        var count = await _repository.AddSaleAsync(sale);
+            var sale = SaleFactory.ParseByRequest(r, store, product);
+            if (sale == null)
+            {
+                Console.Write("[Add Failed] " + r.ToString());
+                continue;
+            }
+
+            sales.Add(sale);
+        }
+        
+        var count = await _repository.AddSaleAsync(sales);
         if (count == 0)
         {
             return ResponseFactory.CreateErrorResponse("新增失敗");
@@ -57,26 +75,38 @@ public class SaleService
     }
 
     // BIG5 File
-    public async Task<ResponseBase> ImportAsync(IFormFile file)
+    public async Task<ResponseBase> ImportAsync(FileRequest request)
     {
+        var file =  request.File;
         if (file == null || file.Length == 0) return ResponseFactory.CreateErrorResponse("請選擇檔案");
 
+        List<Sale> sales = [];
+
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
         using var stream = file.OpenReadStream();
-
         using var reader = new StreamReader(stream, Encoding.GetEncoding("Big5"));
 
-        List<SaleLine> sales = [];
-
         string? line;
-
         while ((line = await reader.ReadLineAsync()) is not null)
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            sales.Add(SaleFactory.ParseByLine(line));
+            var sale = SaleFactory.ParseByLine(line, request.UpdateBy);
+
+            if (sale != null)
+            {
+                sales.Add(sale);
+            }
+            else
+            {
+                Console.Write("[Import Failed] " + line);
+            }
         }
+        
+        var startTime = DateTime.Today;
+        var endTime = DateTime.Today.AddDays(1);
+
+        await _repository.DeleteSaleAsync(startTime, endTime, request.UpdateBy);
 
         await _repository.AddSaleAsync(sales);
 

@@ -6,6 +6,19 @@ public class ProductRepository : BaseRepository, IProductRepository
     {
     }
 
+    public async Task<List<Product>> GetAllAsync()
+    { 
+        const string sql = """
+            SELECT * FROM product;
+        """;
+
+        using var connection = CreateConnection();
+
+        var result = await connection.QueryAsync<Product>(sql);
+
+        return result.ToList();
+    }
+
     public async Task<Product?> GetProductByNameAsync(string name)
     {
          const string sql = """

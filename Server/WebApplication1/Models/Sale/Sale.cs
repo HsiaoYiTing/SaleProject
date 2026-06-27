@@ -1,18 +1,18 @@
 public class Sale
 {
-    public string Id { get; set; }
+    public required string Id { get; set; }
 
-    public Store Store { get; set; }
+    public required Store Store { get; set; }
 
-    public Product Product { get; set; }
+    public required Product Product { get; set; }
 
-    public decimal Price { get; set; }
+    public required decimal Price { get; set; }
 
-    public int Qty { get; set; }
+    public required int Qty { get; set; }
 
-    public DateTime SaleTime { get; set; }
+    public required DateTime SaleTime { get; set; }
 
-    public DateTime CreateTime { get; set; } 
+    public required DateTime CreateTime { get; set; } 
 
-    public string UpdateBy { get; set; } 
+    public required string UpdateBy { get; set; } 
 }

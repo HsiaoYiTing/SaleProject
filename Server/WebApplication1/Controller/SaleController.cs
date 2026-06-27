@@ -16,7 +16,7 @@ public class SaleController: ControllerBase
 
 
     [HttpPost("findbyDate")]
-    public async Task<ResponseBase<List<Sale>?>> FindByConditionsAsync([FromBody] QuerySaleRequest request)
+    public async Task<ResponseBase<List<Sale>?>> FindByConditionsAsync([FromBody] RequestBase request)
     {
         var response = await _service.GetSaleListAsync(request);
 
@@ -24,7 +24,7 @@ public class SaleController: ControllerBase
     }
 
     [HttpPost("add")]
-    public async Task<ResponseBase> AddAsync([FromBody] AddSaleRequest request)
+    public async Task<ResponseBase> AddAsync([FromBody] List<AddSaleRequest> request)
     {
         var response = await _service.AddSaleAsync(request);
 
@@ -32,8 +32,8 @@ public class SaleController: ControllerBase
     }
 
    [HttpPost("import")]
-    public async Task<ResponseBase> Import(IFormFile file)
+    public async Task<ResponseBase> Import([FromForm] FileRequest request)
     {
-        return await _service.ImportAsync(file);
+        return await _service.ImportAsync(request);
     }
 }

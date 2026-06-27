@@ -20,7 +20,7 @@ public class MemberRepository : BaseRepository, IMemberRepository
         using var command = new NpgsqlCommand(sql, connection);
         command.Parameters.AddWithValue("@account", member.Account);
         command.Parameters.AddWithValue("@password", member.Password);
-        command.Parameters.AddWithValue("@name", member.Name);
+        command.Parameters.AddWithValue("@name", member.Name ?? "");
         var rowsAffected = await command.ExecuteNonQueryAsync();
 
         return rowsAffected;
